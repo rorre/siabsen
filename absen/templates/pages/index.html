@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>Hello!</h1>
+{% endblock %}
+
+{% block content %}
+<a href={{ url_for("index.login_page") }}>Login</a>
+{% endblock %}
