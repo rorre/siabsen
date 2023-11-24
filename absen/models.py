@@ -36,6 +36,9 @@ class School(db.Model):
         foreign_keys=[admin_id],
     )
 
+    def __str__(self):
+        return self.name
+
 
 class User(db.Model):
     __tablename__ = "user"
@@ -71,6 +74,9 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
+    def __str__(self):
+        return self.name
+
 
 class Classroom(db.Model):
     __tablename__ = "classroom"
@@ -81,6 +87,9 @@ class Classroom(db.Model):
 
     school_id: Mapped[int] = mapped_column(Integer, ForeignKey("school.id"))
     school: Mapped["School"] = relationship(back_populates="classrooms")
+
+    def __str__(self):
+        return self.name
 
 
 class Presence(db.Model):
