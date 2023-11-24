@@ -1,3 +1,4 @@
+from typing import Callable
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla import fields
 from wtforms import SelectField
@@ -6,6 +7,7 @@ from sqlalchemy import select
 from absen.models import Classroom, Presence, School
 from absen.plugins import current_user
 from werkzeug.security import generate_password_hash
+from typing_extensions import Self
 
 
 class SuperAdminModelView(ModelView):
@@ -16,7 +18,8 @@ class SuperAdminModelView(ModelView):
 
 
 class SchoolAdminModelView(ModelView):
-    school_id_attrib = None
+    def school_id_attrib(self):
+        return User.school_id
 
     def is_accessible(self):
         from absen.plugins import current_user
@@ -26,8 +29,11 @@ class SchoolAdminModelView(ModelView):
     def get_query(self):
         query = self.model.query
         if not current_user.is_superadmin and current_user.school_admin is not None:
-            query = query.filter(self.school_id_attrib == current_user.school_admin.id)
+            query = query.filter(
+                self.school_id_attrib() == current_user.school_admin.id
+            )
 
+        print(query)
         return query
 
 
@@ -48,7 +54,9 @@ class SchoolModelView(SuperAdminModelView):
 
 
 class UserModelView(SchoolAdminModelView):
-    school_id_attrib = User.school_id
+    def school_id_attrib(self):
+        return User.school_id
+
     form_extra_fields = {
         "classroom": fields.QuerySelectField("Classroom", allow_blank=True),
         "school": fields.QuerySelectField("School", allow_blank=True),
@@ -68,7 +76,12 @@ class UserModelView(SchoolAdminModelView):
         form.classroom.query = query
         form.school.query = db.session.query(School).all()
         if not current_user.is_superadmin:
-            form.school.render_kw = {"readonly": True}
+            form.school.render_kw = {"readonly": True, "disabled": True}
+            form.is_superadmin.render_kw = {
+                "readonly": True,
+                "disabled": True,
+            }
+            form.school.data = current_user.school_admin
 
         return form
 
@@ -80,14 +93,26 @@ class UserModelView(SchoolAdminModelView):
 
         form.classroom.query = query
         form.school.query = db.session.query(School).all()
-        if not current_user.is_superadmin:
-            form.school.render_kw = {"readonly": True}
+        if not current_user.is_superadmin and current_user.school_admin:
+            form.school.query = (
+                db.session.query(School)
+                .filter(School.id == current_user.school_admin.id)
+                .all()
+            )
+            form.school.render_kw = {"readonly": True, "disabled": True}
+            form.school.data = current_user.school_admin
+            form.is_superadmin.render_kw = {
+                "readonly": True,
+                "disabled": True,
+            }
 
         return form
 
 
 class ClassroomModelView(SchoolAdminModelView):
-    school_id_attrib = Classroom.school_id
+    def school_id_attrib(self):
+        return Classroom.school_id
+
     form_extra_fields = {
         "school": fields.QuerySelectField("School"),
     }
