@@ -51,11 +51,12 @@ class UserModelView(SchoolAdminModelView):
     school_id_attrib = User.school_id
     form_extra_fields = {
         "classroom": fields.QuerySelectField("Classroom", allow_blank=True),
+        "school": fields.QuerySelectField("School", allow_blank=True),
     }
 
     def on_model_change(self, form, model, is_created):
-        form.password.data = generate_password_hash(form.password.data)
-        raise Exception
+        pwhash = generate_password_hash(form.password.data)
+        model.password = pwhash
         return super().on_model_change(form, model, is_created)
 
     def edit_form(self, obj=None):
@@ -65,6 +66,10 @@ class UserModelView(SchoolAdminModelView):
             query = query.filter(Classroom.school_id == current_user.school_admin.id)
 
         form.classroom.query = query
+        form.school.query = db.session.query(School).all()
+        if not current_user.is_superadmin:
+            form.school.render_kw = {"readonly": True}
+
         return form
 
     def create_form(self, obj=None):
@@ -74,6 +79,10 @@ class UserModelView(SchoolAdminModelView):
             query = query.filter(Classroom.school_id == current_user.school_admin.id)
 
         form.classroom.query = query
+        form.school.query = db.session.query(School).all()
+        if not current_user.is_superadmin:
+            form.school.render_kw = {"readonly": True}
+
         return form
 
 
