@@ -1,13 +1,22 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>Login</h1>
-{% endblock %}
-
 {% block content %}
+<h1 class="text-2xl font-bold py-4">Login</h1>
 <form class="flex flex-col gap-4" method="POST">
-    <input name="username" class="outline"></input>
-    <input name="password" type="password" class="outline"></input>
-    <button type="submit">Login</button>
-</div>
+  <div class="form-control w-full">
+    <label class="label">
+      <span class="label-text">Username</span>
+    </label>
+    <input type="text" name="username" placeholder="Type here" class="input input-bordered w-full" />
+  </div>
+
+  <div class="form-control w-full">
+    <label class="label">
+      <span class="label-text">Password</span>
+    </label>
+    <input type="password" name="password" placeholder="Type here" class="input input-bordered w-full" />
+  </div>
+
+  <button class="btn btn-primary">Login</button>
+</form>
 {% endblock %}

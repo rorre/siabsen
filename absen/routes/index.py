@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_user
+from flask_login import login_user, logout_user
 from sqlalchemy import select
 from absen.models import User, db
 from werkzeug.security import check_password_hash
@@ -32,4 +32,10 @@ def login():
         return redirect(url_for("index.login_page"))
 
     login_user(user)
+    return redirect(url_for("index.index"))
+
+
+@bp.get("/logout")
+def logout():
+    logout_user()
     return redirect(url_for("index.index"))

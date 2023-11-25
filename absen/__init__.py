@@ -16,6 +16,7 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
+    app.url_map.strict_slashes = False
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config["SECRET_KEY"] = environ.get("SECRET_KEY")
@@ -61,7 +62,9 @@ def create_app():
     )
 
     from absen.routes.index import bp as index_bp
+    from absen.routes.attendance import bp as attendance_bp
 
     app.register_blueprint(index_bp)
+    app.register_blueprint(attendance_bp)
 
     return app

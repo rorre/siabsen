@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex flex-col gap-4">
+    <h1 class="text-2xl font-bold">Attendance</h1>
+
+    <div class="flex flex-col md:flex-row gap-4 md:justify-between p-4 rounded-md border border-primary">
+        <div class="flex flex-col">
+            <strong>
+                {% if has_attended %}
+                    You have attended!
+                {% else %}
+                    You have not send your attendance!
+                {% endif %}
+            </strong>
+            <p>Make sure you mark your attendance!</p>
+        </div>
+        <form action="/attendance/attend" method="POST">
+            <button class="btn btn-primary w-full">Attend</button>
+        </form>
+    </div>
+
+    <h2 class="text-xl font-bold">Attendance History</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2">
+        {% for attendance in attendances %}
+            <p class="bg-primary text-primary-content rounded-md p-4">{{ attendance.dt.isoformat(" ", "seconds") }}</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

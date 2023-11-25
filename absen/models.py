@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Boolean, ForeignKey, MetaData
@@ -20,8 +21,13 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
+if TYPE_CHECKING:
+    BaseModel = Base
+else:
+    BaseModel = db.Model
 
-class School(db.Model):
+
+class School(BaseModel):
     __tablename__ = "school"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -40,7 +46,7 @@ class School(db.Model):
         return self.name
 
 
-class User(db.Model):
+class User(BaseModel):
     __tablename__ = "user"
     is_authenticated = True
     is_active = True
@@ -50,8 +56,6 @@ class User(db.Model):
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String)
     name: Mapped[str] = mapped_column(String)
-    is_superadmin: Mapped[bool] = mapped_column(Boolean, default=False)
-
     school_admin: Mapped["School | None"] = relationship(
         back_populates="admin",
         foreign_keys=[School.admin_id],
@@ -71,6 +75,16 @@ class User(db.Model):
     )
     school: Mapped["School"] = relationship(foreign_keys=[school_id])
 
+    is_superadmin: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    @property
+    def is_school_admin(self):
+        return self.school_admin is not None
+
+    @property
+    def is_student(self):
+        return self.classroom is not None and not self.is_school_admin
+
     def get_id(self):
         return self.id
 
@@ -78,7 +92,7 @@ class User(db.Model):
         return self.name
 
 
-class Classroom(db.Model):
+class Classroom(BaseModel):
     __tablename__ = "classroom"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -92,7 +106,7 @@ class Classroom(db.Model):
         return self.name
 
 
-class Presence(db.Model):
+class Presence(BaseModel):
     __tablename__ = "presence"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -104,4 +118,4 @@ class Presence(db.Model):
 
     student_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
     student: Mapped["User"] = relationship()
-    dt: Mapped[datetime] = mapped_column(DateTime)
+    dt: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)

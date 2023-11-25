@@ -10,7 +10,7 @@ class SuperAdminModelView(ModelView):
     column_exclude_list = ["password"]
 
     def is_accessible(self):
-        return current_user.is_superadmin
+        return current_user.is_authenticated and current_user.is_superadmin
 
 
 class AdminModelView(ModelView):
@@ -18,7 +18,9 @@ class AdminModelView(ModelView):
         return User.school_id
 
     def is_accessible(self):
-        return current_user.is_superadmin or current_user.school_admin is not None
+        return current_user.is_authenticated and (
+            current_user.is_superadmin or current_user.school_admin is not None
+        )
 
     def get_query(self):
         query = self.model.query
@@ -32,7 +34,9 @@ class AdminModelView(ModelView):
 
 class SchoolAdminModelView(AdminModelView):
     def is_accessible(self):
-        return not current_user.is_superadmin and current_user.school_admin is not None
+        return current_user.is_authenticated and (
+            not current_user.is_superadmin and current_user.school_admin is not None
+        )
 
 
 class SchoolModelView(SuperAdminModelView):
