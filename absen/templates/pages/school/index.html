@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex flex-col gap-4">
+    <h1 class="text-2xl font-bold">Attendance Data</h1>
+
+    <form class="flex flex-col gap-2">
+        <select class="select select-bordered w-full" name="class">
+            {% for c in classrooms %}
+                <option {% if c.id == request.args.class %}selected{% endif %} value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="date" placeholder="Date" class="input input-bordered w-full" value="{{ request.args.date }}" />
+        <button class="btn btn-primary">Get Attendance</button>
+    </form>
+
+    {% if attendances %}
+    <h2 class="text-xl font-bold">Attended Students</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2">
+        {% for attendance in attendances %}
+            <p class="bg-primary text-primary-content rounded-md p-4">{{ attendance.student.name }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

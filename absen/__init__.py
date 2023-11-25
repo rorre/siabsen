@@ -63,8 +63,10 @@ def create_app():
 
     from absen.routes.index import bp as index_bp
     from absen.routes.attendance import bp as attendance_bp
+    from absen.routes.school import bp as school_bp
 
     app.register_blueprint(index_bp)
     app.register_blueprint(attendance_bp)
+    app.register_blueprint(school_bp)
 
     return app
