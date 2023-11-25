@@ -1,3 +1,4 @@
+from flask import flash
 from flask_admin.contrib.sqla import ModelView, fields
 from werkzeug.security import generate_password_hash
 from wtforms import validators
@@ -47,12 +48,32 @@ class SchoolModelView(SuperAdminModelView):
     def edit_form(self, obj=None):
         form = super().edit_form(obj)
         form.admin.query = db.session.query(User).all()
+        form.classrooms.query = db.session.query(Classroom).filter(
+            Classroom.school == form._obj
+        )
         return form
 
     def create_form(self, obj=None):
         form = super().create_form(obj)
         form.admin.query = db.session.query(User).all()
+        form.classrooms.query = db.session.query(Classroom).filter(
+            Classroom.school == form._obj
+        )
         return form
+
+    def validate_form(self, form):
+        if (
+            form.admin.data
+            and form.admin.data.school_admin
+            and form._obj != form.admin.data.school_admin
+        ):
+            flash("User is already admin in another school!", "error")
+            return False
+
+        if form.admin.data and form.admin.data.is_student:
+            flash("User is a student!", "error")
+            return False
+        return super().validate_form(form)
 
 
 class UserModelView(SuperAdminModelView):
