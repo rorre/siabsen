@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-2xl font-bold py-4">Setup SiAbsen</h1>
+<p>In order to use SiAbsen, there needs to be at least one superadmin user. This setup will configure said user.</p>
+<form class="flex flex-col gap-4" method="POST">
+  {{ forms.inputlabel("name", label="Name", type="text") }}
+  {{ forms.inputlabel("username", label="Username", type="text") }}
+  {{ forms.inputlabel("password", label="Password", type="password") }}
+  {{ forms.inputlabel("password_config", label="Password (Confirm)", type="password") }}
+  <button class="btn btn-primary">Create</button>
+</form>
+{% endblock %}

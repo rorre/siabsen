@@ -1,0 +1,8 @@
+{% macro inputlabel(name, value='', type='text', label='') %}
+    <div class="form-control w-full">
+        <label class="label">
+            <span class="label-text">{{ label }}</span>
+        </label>
+        <input class="input input-bordered w-full"  type="{{ type }}" name="{{ name }}" value="{{ value|e }}" placeholder="{{ label }}">
+    </div>
+{% endmacro %}

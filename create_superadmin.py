@@ -9,11 +9,12 @@ password = getpass("Password: ")
 name = input("Name: ")
 
 with app.app_context():
-    user = User()
-    user.username = username
-    user.password = generate_password_hash(password)
-    user.is_superadmin = True
-    user.name = name
+    user = User(
+        username=username,
+        password=generate_password_hash(password),
+        is_superadmin=True,
+        name=name,
+    )
 
     db.session.add(user)
     db.session.commit()
