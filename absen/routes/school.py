@@ -1,15 +1,16 @@
-from datetime import date, datetime
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from datetime import date
+from flask import Blueprint, render_template, request
+from absen.guards import school_admin_only
 from absen.plugins import current_user
-from sqlalchemy import desc, select
-from absen.models import Classroom, Presence, User, db
-from werkzeug.security import check_password_hash
+from sqlalchemy import select
+from absen.models import Presence, User, db
 from sqlalchemy import func
 
 bp = Blueprint("schooldata", __name__, url_prefix="/school")
 
 
 @bp.get("/")
+@school_admin_only
 def index():
     classrooms = current_user.school_admin.classrooms  # type: ignore
     class_id = request.args.get("class")
@@ -30,7 +31,6 @@ def index():
     except Exception:
         pass
 
-    # print(list(query))
     return render_template(
         "pages/school/index.html",
         classrooms=classrooms,

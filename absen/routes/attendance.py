@@ -1,14 +1,15 @@
 from datetime import datetime
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
+from absen.guards import student_only
 from absen.plugins import current_user
 from sqlalchemy import desc, select
-from absen.models import Presence, User, db
-from werkzeug.security import check_password_hash
+from absen.models import Presence, db
 
 bp = Blueprint("attendance", __name__, url_prefix="/attendance")
 
 
 @bp.get("/")
+@student_only
 def index():
     user_attendance = list(
         db.session.execute(
@@ -35,6 +36,7 @@ def index():
 
 
 @bp.post("/attend")
+@student_only
 def mark_attendance():
     latest = (
         db.session.execute(
