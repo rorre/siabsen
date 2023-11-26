@@ -19,7 +19,6 @@ def index():
     query = None
     try:
         d = date.fromisoformat(date_str)
-        print(class_id, d)
         query = db.session.execute(
             select(Presence)
             .filter(
@@ -27,6 +26,7 @@ def index():
                 func.DATE(Presence.dt) == d,
             )
             .join(User, Presence.student_id == User.id)
+            .order_by(User.name)
         ).scalars()
     except Exception:
         pass
