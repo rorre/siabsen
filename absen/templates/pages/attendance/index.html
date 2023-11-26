@@ -10,7 +10,7 @@
                 {% if has_attended %}
                     You have attended!
                 {% else %}
-                    You have not send your attendance!
+                    You have not mark your attendance!
                 {% endif %}
             </strong>
             <p>Make sure you mark your attendance!</p>
@@ -21,7 +21,7 @@
     </div>
 
     <h2 class="text-xl font-bold">Attendance History</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {% for attendance in attendances %}
             <p class="bg-primary text-primary-content rounded-md p-4">{{ attendance.dt.isoformat(" ", "seconds") }}</p>
         {% endfor %}
