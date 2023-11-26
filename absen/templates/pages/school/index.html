@@ -16,7 +16,7 @@
 
     {% if attendances %}
     <h2 class="text-xl font-bold">Attended Students</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {% for attendance in attendances %}
             <p class="bg-primary text-primary-content rounded-md p-4">{{ attendance.student.name }}</p>
         {% endfor %}
