@@ -88,8 +88,9 @@ class UserModelView(SuperAdminModelView):
     }
 
     def on_model_change(self, form, model, is_created):
-        pwhash = generate_password_hash(form.password.data)
-        model.password = pwhash
+        if model.password != form.password.data:
+            pwhash = generate_password_hash(form.password.data)
+            model.password = pwhash
         return super().on_model_change(form, model, is_created)
 
     def edit_form(self, obj=None):
