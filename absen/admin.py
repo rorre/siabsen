@@ -1,5 +1,6 @@
 from flask import flash
 from flask_admin.contrib.sqla import ModelView, fields
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash
 from wtforms import validators
 
@@ -15,28 +16,37 @@ class SuperAdminModelView(ModelView):
 
 
 class AdminModelView(ModelView):
-    def school_id_attrib(self):
-        return User.school_id
-
     def is_accessible(self):
         return current_user.is_authenticated and (
             current_user.is_superadmin or current_user.school_admin is not None
         )
-
-    def get_query(self):
-        query = self.model.query
-        if not current_user.is_superadmin and current_user.school_admin is not None:
-            query = query.filter(
-                self.school_id_attrib() == current_user.school_admin.id
-            )
-
-        return query
 
 
 class SchoolAdminModelView(AdminModelView):
     def is_accessible(self):
         return current_user.is_authenticated and (
             not current_user.is_superadmin and current_user.school_admin is not None
+        )
+
+    def school_id_attrib(self):
+        return User.school_id
+
+    def get_query(self):
+        query = self.model.query
+        if current_user.school_admin is not None:
+            query = query.filter(
+                self.school_id_attrib() == current_user.school_admin.id
+            )
+
+        return query
+
+    def get_count_query(self):
+        if current_user.school_admin is None:
+            return super().get_count_query()
+        return (
+            self.session.query(func.count("*"))
+            .select_from(self.model)
+            .filter(self.school_id_attrib() == current_user.school_admin.id)
         )
 
 
