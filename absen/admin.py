@@ -120,8 +120,9 @@ class StudentModelView(SchoolAdminModelView):
         return User.school_id
 
     def on_model_change(self, form, model, is_created):
-        pwhash = generate_password_hash(form.password.data)
-        model.password = pwhash
+        if model.password != form.password.data:
+            pwhash = generate_password_hash(form.password.data)
+            model.password = pwhash
         model.school = current_user.school_admin
         return super().on_model_change(form, model, is_created)
 
