@@ -20,7 +20,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config["SECRET_KEY"] = environ.get("SECRET_KEY")
-    app.config["FLASK_ADMIN_SWATCH"] = "Flatly"
+    app.config["FLASK_ADMIN_SWATCH"] = "flatly"
 
     from absen.plugins import admin, migrate, login_manager
     from absen.models import db, User, School, Classroom
