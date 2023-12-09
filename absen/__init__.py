@@ -17,7 +17,7 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
     app.url_map.strict_slashes = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URI", "sqlite:///project.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL", "sqlite:///project.db")
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config["SECRET_KEY"] = environ.get("SECRET_KEY")
     app.config["FLASK_ADMIN_SWATCH"] = "flatly"
