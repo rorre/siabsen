@@ -1,5 +1,5 @@
 from os import environ
-from flask import Flask, g, redirect, request, url_for
+from flask import Flask, redirect, request, url_for
 from dotenv import load_dotenv
 from sqlalchemy import func, select
 
@@ -17,7 +17,7 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
     app.url_map.strict_slashes = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URI", "sqlite:///project.db")
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config["SECRET_KEY"] = environ.get("SECRET_KEY")
     app.config["FLASK_ADMIN_SWATCH"] = "Flatly"
@@ -27,9 +27,7 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return db.session.execute(
-            select(User).filter(User.id == user_id)
-        ).scalar_one_or_none()
+        return db.session.execute(select(User).filter(User.id == user_id)).scalar_one_or_none()
 
     admin.init_app(app)
     db.init_app(app)
