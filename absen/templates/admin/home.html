@@ -1,0 +1,20 @@
+{% extends 'admin/index.html' %}
+{% block tail %}
+    {{ super() }}
+    <div class="container">
+        <h2>Hello, {{current_user.name}}!</h2>
+        {% if current_user.is_school_admin %}
+            <p>You are a school admin for {{current_user.school_admin.name}}.</p>
+            <a href="/admin/student"><button type="button" class="btn btn-primary">Manage Students</button></a>
+            <a href="/admin/classroomadmin"><button type="button" class="btn btn-primary">Manage Classrooms</button></a>
+        {% else %}
+            <p>You are a super admin.</p>
+            <a href="/admin/user"><button type="button" class="btn btn-primary">Manage Users</button></a>
+            <a href="/admin/school"><button type="button" class="btn btn-primary">Manage School</button></a>
+            <a href="/admin/classroomadmin"><button type="button" class="btn btn-primary">Manage Classrooms</button></a>
+            
+        {% endif %}
+        <a href="/logout"><button type="button" class="btn btn-info">Back To Home</button></a>
+        <a href="/logout"><button type="button" class="btn btn-danger">Logout</button></a>
+    </div>
+{% endblock %}
