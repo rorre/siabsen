@@ -2,7 +2,7 @@ from flask import flash
 from flask_admin.contrib.sqla import ModelView, fields
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash
-from wtforms import validators
+from wtforms import PasswordField, validators
 
 from absen.models import Classroom, School, User, db
 from absen.plugins import current_user
@@ -88,6 +88,7 @@ class SchoolModelView(SuperAdminModelView):
 
 class UserModelView(SuperAdminModelView):
     column_list = ("username", "name", "classroom", "school")
+    form_excluded_columns = ("password",)
 
     def school_id_attrib(self):
         return User.school_id
@@ -95,16 +96,18 @@ class UserModelView(SuperAdminModelView):
     form_extra_fields = {
         "classroom": fields.QuerySelectField("Classroom", allow_blank=True),
         "school": fields.QuerySelectField("School", allow_blank=True),
+        "user_password": PasswordField(),
     }
 
     def on_model_change(self, form, model, is_created):
-        if model.password != form.password.data:
-            pwhash = generate_password_hash(form.password.data)
+        if form.user_password.data:
+            pwhash = generate_password_hash(form.user_password.data)
             model.password = pwhash
         return super().on_model_change(form, model, is_created)
 
     def edit_form(self, obj=None):
         form = super().edit_form(obj)
+        form.user_password.label.text = "Change User Password"
         form.classroom.query = db.session.query(Classroom)
         form.school.query = db.session.query(School)
 
@@ -112,6 +115,8 @@ class UserModelView(SuperAdminModelView):
 
     def create_form(self, obj=None):
         form = super().create_form(obj)
+        form.user_password.label.text = "Password"
+        form.user_password.validators = [validators.InputRequired()]
         form.classroom.query = db.session.query(Classroom)
         form.school.query = db.session.query(School)
 
