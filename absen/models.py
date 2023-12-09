@@ -35,7 +35,7 @@ class School(BaseModel):
 
     classrooms: Mapped[list["Classroom"]] = relationship(back_populates="school")
 
-    admin_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
+    admin_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id", use_alter=True))
     admin: Mapped["User"] = relationship(
         "User",
         back_populates="school_admin",
