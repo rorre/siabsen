@@ -1,6 +1,40 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Hello!</h1>
-<a href={{ url_for("index.login_page") }}>Login</a>
+<div class="text-center">
+    <h1 class=" font-bold text-4xl">Hello!</h1>
+    <strong class="text-2xl">Welcome to SiAbsen!</strong>
+
+    {% if current_user.is_authenticated %}
+        <p>You are authenticated as {{ current_user.name }}.</p>
+        {% if not current_user.is_superadmin %}
+            {% if current_user.is_school_admin %}
+                <p>School: {{ current_user.school_admin.name }}</p>
+            {% else %}
+                <p>School: {{ current_user.school.name }}</p>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    <h4 class="mt-8">What do you want to do?</h4>
+
+    <div class="flex flex-row items-center justify-center gap-2 mt-2">
+        {% if current_user.is_authenticated %}
+        {% if current_user.is_superadmin or current_user.is_school_admin %}
+          <a href="/admin" class="btn btn-primary">View Admin Panel</a>
+        {% endif %}
+
+        {% if current_user.is_school_admin %}
+          <a href="/school" class="btn btn-secondary">View Attendance Data</a>
+        {% endif %}
+
+        {% if current_user.is_student %}
+          <a href="/attendance" class="btn btn-primary">Mark Attendance</a>
+        {% endif %}
+
+      {% else %}
+        <a href="/login" class="btn btn-primary">Login</a>
+      {% endif %}
+    </div>
+</div>
 {% endblock %}
