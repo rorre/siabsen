@@ -17,9 +17,7 @@ class SuperAdminModelView(ModelView):
 
 class AdminModelView(ModelView):
     def is_accessible(self):
-        return current_user.is_authenticated and (
-            current_user.is_superadmin or current_user.school_admin is not None
-        )
+        return current_user.is_authenticated and (current_user.is_superadmin or current_user.school_admin is not None)
 
 
 class SchoolAdminModelView(AdminModelView):
@@ -34,9 +32,7 @@ class SchoolAdminModelView(AdminModelView):
     def get_query(self):
         query = self.model.query
         if current_user.school_admin is not None:
-            query = query.filter(
-                self.school_id_attrib() == current_user.school_admin.id
-            )
+            query = query.filter(self.school_id_attrib() == current_user.school_admin.id)
 
         return query
 
@@ -58,25 +54,17 @@ class SchoolModelView(SuperAdminModelView):
     def edit_form(self, obj=None):
         form = super().edit_form(obj)
         form.admin.query = db.session.query(User).all()
-        form.classrooms.query = db.session.query(Classroom).filter(
-            Classroom.school == form._obj
-        )
+        form.classrooms.query = db.session.query(Classroom).filter(Classroom.school == form._obj)
         return form
 
     def create_form(self, obj=None):
         form = super().create_form(obj)
         form.admin.query = db.session.query(User).all()
-        form.classrooms.query = db.session.query(Classroom).filter(
-            Classroom.school == form._obj
-        )
+        form.classrooms.query = db.session.query(Classroom).filter(Classroom.school == form._obj)
         return form
 
     def validate_form(self, form):
-        if (
-            form.admin.data
-            and form.admin.data.school_admin
-            and form._obj != form.admin.data.school_admin
-        ):
+        if form.admin.data and form.admin.data.school_admin and form._obj != form.admin.data.school_admin:
             flash("User is already admin in another school!", "error")
             return False
 
@@ -126,18 +114,17 @@ class UserModelView(SuperAdminModelView):
 class StudentModelView(SchoolAdminModelView):
     column_list = ("username", "name", "classroom")
     form_extra_fields = {
-        "classroom": fields.QuerySelectField(
-            "Classroom", validators=[validators.InputRequired()]
-        ),
+        "classroom": fields.QuerySelectField("Classroom", validators=[validators.InputRequired()]),
+        "user_password": PasswordField(),
     }
-    form_excluded_columns = ("is_superadmin",)
+    form_excluded_columns = ("is_superadmin", "school_admin", "school", "password")
 
     def school_id_attrib(self):
         return User.school_id
 
     def on_model_change(self, form, model, is_created):
-        if model.password != form.password.data:
-            pwhash = generate_password_hash(form.password.data)
+        if model.user_password:
+            pwhash = generate_password_hash(form.user_password.data)
             model.password = pwhash
         model.school = current_user.school_admin
         return super().on_model_change(form, model, is_created)
@@ -146,9 +133,9 @@ class StudentModelView(SchoolAdminModelView):
         assert current_user.school_admin is not None
 
         form = super().edit_form(obj)
-        form.classroom.query = db.session.query(Classroom).filter(
-            Classroom.school_id == current_user.school_admin.id
-        )
+        form.classroom.query = db.session.query(Classroom).filter(Classroom.school_id == current_user.school_admin.id)
+        form.user_password.label.text = "Change Password"
+        form.user_password.validators = []
 
         return form
 
@@ -156,9 +143,9 @@ class StudentModelView(SchoolAdminModelView):
         assert current_user.school_admin is not None
 
         form = super().create_form(obj)
-        form.classroom.query = db.session.query(Classroom).filter(
-            Classroom.school_id == current_user.school_admin.id
-        )
+        form.classroom.query = db.session.query(Classroom).filter(Classroom.school_id == current_user.school_admin.id)
+        form.user_password.label.text = "Password"
+        form.user_password.validators = [validators.InputRequired()]
 
         return form
 
@@ -191,6 +178,7 @@ class ClassroomModelView(SuperAdminModelView):
 
 class ClassroomAdminModelView(SchoolAdminModelView):
     column_list = ("name",)
+    form_excluded_columns = ("school",)
 
     def school_id_attrib(self):
         return Classroom.school_id
