@@ -4,5 +4,17 @@ services:
     restart: always
     environment:
       - SECRET_KEY=verysafesecret
+      - DATABASE_URL=postgresql://siabsen:siabsen@postgres:5432/siabsen
     ports:
       - "5000:5000"
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=siabsen
+      - POSTGRES_USER=siabsen
+      - POSTGRES_DB=siabsen
