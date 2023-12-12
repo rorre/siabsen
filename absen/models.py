@@ -33,9 +33,16 @@ class School(BaseModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String)
 
-    classrooms: Mapped[list["Classroom"]] = relationship(back_populates="school")
+    classrooms: Mapped[list["Classroom"]] = relationship(back_populates="school", cascade="all, delete")
 
-    admin_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id", use_alter=True))
+    admin_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            "user.id",
+            use_alter=True,
+            ondelete="SET NULL",
+        ),
+    )
     admin: Mapped["User"] = relationship(
         "User",
         back_populates="school_admin",
@@ -63,14 +70,14 @@ class User(BaseModel):
 
     classroom_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("classroom.id"),
+        ForeignKey("classroom.id", ondelete="SET NULL"),
         nullable=True,
     )
     classroom: Mapped["Classroom | None"] = relationship(back_populates="students")
 
     school_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("school.id"),
+        ForeignKey("school.id", ondelete="CASCADE"),
         nullable=True,
     )
     school: Mapped["School"] = relationship(foreign_keys=[school_id])
@@ -116,6 +123,6 @@ class Presence(BaseModel):
     classroom_id: Mapped[int] = mapped_column(Integer, ForeignKey("classroom.id"))
     classroom: Mapped["Classroom"] = relationship()
 
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
+    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id", ondelete="CASCADE"))
     student: Mapped["User"] = relationship()
     dt: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
