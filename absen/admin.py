@@ -64,6 +64,9 @@ class SchoolModelView(SuperAdminModelView):
         return form
 
     def validate_form(self, form):
+        if not hasattr(form, "admin"):
+            return super().validate_form(form)
+
         if form.admin.data and form.admin.data.school_admin and form._obj != form.admin.data.school_admin:
             flash("User is already admin in another school!", "error")
             return False
